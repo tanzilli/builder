@@ -5,6 +5,7 @@ LINUX="4.14.68"
 DEBIAN="stretch"
 DEFCONFIG="acme-roadrunner_defconfig"
 DTS="acme-roadrunner-bertad2"
+DTS_TARGET="acme-roadrunner"
 
 echo " Board: [$BOARD]"
 echo " Linux: [$LINUX]"
@@ -22,8 +23,6 @@ fi
 
 (cd $BOARD && tar xvfJ linux-$LINUX.tar.xz)
 
-# Create a branch acme
-# (cd $BOARD/linux-$LINUX && git init; git add .; git commit -m "Linux vanilla"; git branch acme; git checkout acme)
 
 # Copy the requeste defconfig and device tree files 
 cp $DEFCONFIG $BOARD/linux-$LINUX/arch/arm/configs/
@@ -37,3 +36,15 @@ cp $DTS.dts $BOARD/linux-$LINUX/arch/arm/boot/dts
 
 # Compile the Linux zImage
 (cd $BOARD/linux-$LINUX && make -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage)
+
+# Compile the Kernel modules
+(cd $BOARD/linux-$LINUX && make modules -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-)
+(cd $BOARD/linux-$LINUX && make modules_install INSTALL_MOD_PATH=./modules ARCH=arm)
+
+if [ ! -d "$BOARD/target" ]
+then
+	mkdir $BOARD/target
+	cp $BOARD/linux-$LINUX/arch/arm/boot/dts/$DTS.dtb $BOARD/target/acme-$DTS_TARGET.dtb
+	cp $BOARD/linux-$LINUX/arch/arm/boot/zImage $BOARD/target
+	#tar $BOARD/linux-LINUX/modules/lib root@[ip_address]:/lib/.
+fi	
