@@ -44,6 +44,10 @@ cp $DTS.dts $TARGET_DIR/linux-$LINUX/arch/arm/boot/dts
 (cd $TARGET_DIR/linux-$LINUX && make modules -j8 ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-)
 (cd $TARGET_DIR/linux-$LINUX && make modules_install INSTALL_MOD_PATH=./modules ARCH=arm)
 
-cp $TARGET_DIR/linux-$LINUX/arch/arm/boot/dts/$DTS.dtb $TARGET_DIR/acme-$DTS_TARGET.dtb
+# Move the binary file on http://builder.acmesystems.it:
+
+cp $TARGET_DIR/linux-$LINUX/arch/arm/boot/dts/$DTS.dtb $TARGET_DIR/$DTS_TARGET.dtb
 cp $TARGET_DIR/linux-$LINUX/arch/arm/boot/zImage $TARGET_DIR
-#tar $TARGET_DIR/linux-LINUX/modules/lib root@[ip_address]:/lib/.
+tar -cvjf $TARGET_DIR/modules.tar.bz2 -C $TARGET_DIR/linux-$LINUX/modules .
+
+#tar -xvjpf modules.tar.bz2 -C /lib 
